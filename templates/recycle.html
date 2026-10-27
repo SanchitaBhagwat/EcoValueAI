@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Upcycle Studio - EcoValue AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #020b12;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .font-heading {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Beautiful Custom Scrollbar for procedural overlays */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 9px;
+        }
+    </style>
+</head>
+
+<body
+    class="min-h-screen text-slate-200 flex flex-col items-center p-4 md:p-8 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#020b12] to-black">
+
+    <div class="max-w-6xl w-full mt-4">
+        <!-- Studio Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-8">
+            <div class="text-center sm:text-left">
+                <h1
+                    class="font-heading text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-200">
+                    AI Upcycle Studio
+                </h1>
+                <p class="text-slate-400 text-sm mt-1">Innovative blueprints to keep waste out of landfills</p>
+            </div>
+            <a href="/"
+                class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-slate-300 transition-all text-sm font-semibold flex items-center gap-2">
+                ← Scan Another Item
+            </a>
+        </div>
+
+        <!-- Active Classified Resource card -->
+        <div
+            class="bg-slate-900/60 backdrop-blur-xl p-6 rounded-3xl border border-slate-700/60 shadow-2xl mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div class="space-y-2">
+                <span
+                    class="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold uppercase tracking-widest inline-block">
+                    Classified Material Output
+                </span>
+                <h2 class="font-heading text-2xl text-white font-bold">{{ material_title }}</h2>
+                <p class="text-slate-400 text-sm max-w-xl">Discover creative, DIY-friendly ways to transform this
+                    material into something valuable instead of throwing it away.</p>
+            </div>
+
+            <!-- Materials Needed Box -->
+            <div class="bg-black/30 rounded-2xl border border-slate-700/40 p-4 w-full md:w-auto md:min-w-[240px]">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Recommended Workspace Kit:
+                </h4>
+                <div class="flex flex-wrap gap-1.5">
+                    {% for item in data.materials %}
+                    <span
+                        class="px-2 py-0.5 bg-slate-800/80 border border-slate-600/50 rounded-md text-xs text-slate-300">{{
+                        item }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Creation Workspace Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- List of generated items (Left/Middle columns) -->
+            <div class="lg:col-span-2 space-y-6">
+                <h3 class="font-heading text-lg text-slate-300 font-semibold tracking-wide">
+                    Select an Upcycled Design to Build:
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for project in data.projects %}
+                    <div id="card-{{ project.id }}" data-steps='{{ project.steps|tojson|safe }}'
+                        onclick="selectProject('{{ project.id }}', '{{ project.title }}', '{{ project.image_url }}', this)"
+                        class="group bg-slate-900/30 hover:bg-slate-900/50 cursor-pointer rounded-2xl border border-slate-800/80 hover:border-emerald-500/50 shadow-md transition-all overflow-hidden flex flex-col">
+                        <!-- Design image -->
+                        <div class="h-44 w-full overflow-hidden relative bg-slate-950">
+                            <img src="{{ project.image_url }}" alt="{{ project.title }}"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent">
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <h4
+                                    class="font-heading text-lg font-bold text-white group-hover:text-emerald-400 transition-colors">
+                                    {{ project.title }}
+                                </h4>
+                                <p class="text-slate-400 text-xs mt-1">{{ project.description }}</p>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-semibold mt-3 inline-flex items-center gap-1">
+                                View Build Instructions →
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Live Step-by-Step interactive card drawer (Right Column) -->
+            <div class="lg:col-span-1">
+                <div
+                    class="sticky top-6 bg-slate-900/40 rounded-3xl border border-slate-700/60 p-6 shadow-2xl h-[580px] flex flex-col">
+
+                    <div id="welcome-state" class="flex-1 flex flex-col justify-center items-center text-center p-4">
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-4 animate-pulse">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="font-heading text-lg text-white font-semibold mb-2">Build Procedure</h3>
+                        <p class="text-slate-400 text-xs max-w-[240px]">Select any of the designs on the left to reveal
+                            the exact DIY build instructions and required steps.</p>
+                    </div>
+
+                    <!-- Dynamic procedure state (hidden initially, shown on click) -->
+                    <div id="pro-state" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+                        <h4 class="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3">DIY blueprints
+                        </h4>
+
+                        <!-- Target Image -->
+                        <div class="h-28 w-full rounded-xl overflow-hidden mb-4 relative bg-slate-950 flex-shrink-0">
+                            <img id="pro-img" src="" alt="Procedure Blueprint" class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent">
+                            </div>
+                            <div class="absolute bottom-2 left-3">
+                                <h3 id="pro-title" class="font-heading text-md font-bold text-white">Project Name</h3>
+                            </div>
+                        </div>
+
+                        <!-- Steps listed -->
+                        <div class="flex-1 overflow-y-auto custom-scroll pr-1 space-y-3">
+                            <h5
+                                class="text-xs font-bold text-slate-400 uppercase tracking-wide border-b border-slate-800 pb-1">
+                                Required Actions:</h5>
+                            <ol id="pro-steps" class="space-y-3 text-xs md:text-sm"></ol>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function selectProject(id, title, imgUrl, element) {
+            // Toggle display of procedure panel
+            document.getElementById('welcome-state').classList.add('hidden');
+            const detailContainer = document.getElementById('pro-state');
+            detailContainer.classList.remove('hidden');
+
+            // Populate text, images, and variables
+            document.getElementById('pro-title').innerText = title;
+            document.getElementById('pro-img').src = imgUrl;
+
+            const stepsList = document.getElementById('pro-steps');
+            stepsList.innerHTML = ''; // reset lists
+
+            // Safely parse the JSON steps from our new data-steps attribute
+            const steps = JSON.parse(element.getAttribute('data-steps'));
+
+            // Map dynamic lists into numbers for the template
+            steps.forEach((step, index) => {
+                const li = document.createElement('li');
+                li.className = "flex gap-3 text-slate-300 leading-relaxed p-2 rounded-xl bg-black/20 border border-slate-800/50 hover:border-emerald-500/20 transition-all";
+                li.innerHTML = `
+          <span class="flex-shrink-0 w-5 h-5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-[10px]">
+            ${index + 1}
+          </span>
+          <span class="text-xs text-slate-400">${step}</span>
+        `;
+                stepsList.appendChild(li);
+            });
+
+            // Visually highlight active cards
+            document.querySelectorAll('[id^="card-"]').forEach(card => {
+                card.classList.remove('border-emerald-500/60', 'bg-slate-900/50');
+                card.classList.add('border-slate-800/80');
+            });
+            document.getElementById(`card-${id}`).classList.add('border-emerald-500/60', 'bg-slate-900/50');
+            document.getElementById(`card-${id}`).classList.remove('border-slate-800/80');
+        }
+    </script>
+
+</body>
+
+</html>

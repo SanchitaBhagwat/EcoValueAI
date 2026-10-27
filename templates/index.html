@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EcoValue AI - Transform Waste</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* Apply the custom background image here */
+    body { 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      background-color: #020b12; /* Fallback color */
+      background-image: url("{{ url_for('static', filename='images/creative-bg.jpg') }}");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+    
+    h1, h2, h3, .font-heading { font-family: 'Outfit', sans-serif; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in { animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0; }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    
+    .glow-border:hover {
+      box-shadow: 0 0 25px rgba(52, 211, 153, 0.2), inset 0 0 15px rgba(52, 211, 153, 0.04);
+      border-color: rgba(52, 211, 153, 0.7);
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-200 flex flex-col justify-between overflow-x-hidden relative">
+
+  <!-- Transparent Navbar so the background shows through -->
+  <nav class="relative z-10 flex items-center justify-between px-8 py-5 border-b border-white/[0.05] bg-black/10 backdrop-blur-md animate-fade-in">
+    <div class="text-2xl font-heading font-bold tracking-tight text-white flex items-center gap-1">
+      EcoValue<span class="text-emerald-400">.AI</span>
+    </div>
+    <div class="space-x-8 text-sm font-medium tracking-normal">
+      <a href="/" class="text-emerald-400 transition-colors">Scanner</a>
+      <a href="/marketplace" class="text-slate-300 hover:text-white transition-colors duration-200">Marketplace</a>
+    </div>
+  </nav>
+
+  <main class="relative z-10 max-w-2xl mx-auto w-full px-6 py-12 flex-1 flex flex-col justify-center">
+    <div class="text-center mb-10 animate-fade-in delay-100">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 mb-6 rounded-full border border-emerald-400/20 bg-black/40 backdrop-blur-md text-emerald-300 text-xs font-semibold tracking-wider uppercase">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        AI-Powered Material Intelligence
+      </div>
+      <h1 class="font-heading text-4xl md:text-5xl font-bold tracking-tight text-white leading-[1.15] mb-4">
+        Don’t Trash It.<br/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300">Transform It.</span>
+      </h1>
+      <p class="text-slate-300 text-sm md:text-base leading-relaxed max-w-md mx-auto font-normal">
+        Upload an image or snap a photo of unused material to uncover smart upcycling paths and potential value.
+      </p>
+    </div>
+
+    <!-- UI Card with heavy glassmorphism to blend with the new background -->
+    <div class="bg-[#040f16]/40 backdrop-blur-2xl border border-white/[0.1] rounded-3xl p-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-fade-in delay-200">
+      <form action="/predict" method="POST" enctype="multipart/form-data" class="space-y-6">
+        
+        <input id="material_image" name="material_image" type="file" accept="image/*" class="hidden" required onchange="displayFileName(this)">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <button type="button" onclick="openBrowser()" class="glow-border border-2 border-dashed border-slate-500/50 rounded-2xl p-8 flex flex-col items-center justify-center transition-all duration-300 bg-black/30 hover:bg-black/50 group">
+            <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl mb-3 group-hover:scale-105 group-hover:bg-emerald-500/20 transition-all duration-300">
+              <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            </div>
+            <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Browse Gallery</span>
+            <span class="text-xs text-slate-400 mt-1">PNG, JPG, WEBP</span>
+          </button>
+
+          <button type="button" onclick="openLiveCamera()" class="glow-border border-2 border-dashed border-slate-500/50 rounded-2xl p-8 flex flex-col items-center justify-center transition-all duration-300 bg-black/30 hover:bg-black/50 group">
+            <div class="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl mb-3 group-hover:scale-105 group-hover:bg-cyan-500/20 transition-all duration-300">
+              <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+            <span class="text-sm font-medium text-slate-200 group-hover:text-white transition-colors">Live Camera</span>
+            <span class="text-xs text-slate-400 mt-1">Snap a photo now</span>
+          </button>
+        </div>
+
+        <div id="file-chosen-container" class="hidden text-center bg-black/50 rounded-xl py-3 border border-emerald-500/30">
+          <p id="file-chosen" class="text-xs font-medium text-emerald-300 truncate px-4"></p>
+        </div>
+
+        <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-semibold tracking-wide rounded-xl shadow-[0_0_20px_rgba(52,211,153,0.25)] hover:shadow-[0_0_30px_rgba(52,211,153,0.4)] transition-all duration-300 transform active:scale-[0.99]">
+          Analyze Material
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="relative z-10 py-8 text-center animate-fade-in delay-300 border-t border-white/[0.04] bg-black/20 backdrop-blur-sm">
+    <p class="text-xs font-medium tracking-widest text-slate-400 uppercase">
+      Designed & Developed by <span class="text-slate-200 font-semibold tracking-wider ml-1">Sanchita Bhagwat</span>
+    </p>
+  </footer>
+
+  <!-- Live Camera Modal -->
+  <div id="camera-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center p-6">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl p-4 w-full max-w-lg shadow-2xl relative">
+      <button onclick="closeLiveCamera()" class="absolute -top-4 -right-4 bg-red-500 hover:bg-red-400 text-white rounded-full p-2 shadow-lg transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+      </button>
+      <div class="overflow-hidden rounded-2xl bg-black mb-4">
+        <video id="live-video" class="w-full h-auto object-cover transform scale-x-[-1]" autoplay playsinline></video>
+      </div>
+      <button onclick="takeSnapshot()" class="w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-colors flex justify-center items-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+        Snap Photo
+      </button>
+    </div>
+  </div>
+  <canvas id="snapshot-canvas" class="hidden"></canvas>
+
+  <script>
+    const fileInput = document.getElementById('material_image');
+    const cameraModal = document.getElementById('camera-modal');
+    const video = document.getElementById('live-video');
+    const canvas = document.getElementById('snapshot-canvas');
+    let stream = null;
+
+    function openBrowser() { fileInput.click(); }
+
+    async function openLiveCamera() {
+      cameraModal.classList.remove('hidden');
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        video.srcObject = stream;
+      } catch (err) {
+        alert("Camera access denied or unavailable.");
+        closeLiveCamera();
+      }
+    }
+
+    function closeLiveCamera() {
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      cameraModal.classList.add('hidden');
+    }
+
+    function takeSnapshot() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      if (stream.getVideoTracks()[0].getSettings().facingMode !== 'environment') {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob((blob) => {
+        const file = new File([blob], "scanned-material.jpg", { type: "image/jpeg" });
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        fileInput.files = dataTransfer.files;
+        displayFileName(fileInput);
+        closeLiveCamera();
+      }, 'image/jpeg', 0.9);
+    }
+
+    function displayFileName(input) {
+      const display = document.getElementById('file-chosen');
+      const container = document.getElementById('file-chosen-container');
+      if (input.files.length > 0) {
+        display.textContent = 'Ready to analyze: ' + input.files[0].name;
+        container.classList.remove('hidden');
+      }
+    }
+  </script>
+</body>
+</html>
